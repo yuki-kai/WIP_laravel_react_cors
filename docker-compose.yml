@@ -2,14 +2,14 @@ version: "3.9"
 
 services:
   # webアプリケーションのコンテナ
-  app:
+  backend:
     build:
       context: .
-      dockerfile: ./infra/app/Dockerfile
+      dockerfile: ./infra/backend/Dockerfile
       target: php83
     volumes:
-      - ./backend:/var/www
-    working_dir: /var/www
+      - ./backend:/var/www/backend
+    working_dir: /var/www/backend
 
   # webサーバーのコンテナ
   web:
@@ -19,9 +19,22 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - app
+      - backend
     volumes:
-      - ./backend:/var/www
+      - ./backend:/var/www/backend
+
+  # frontendアプリケーションのコンテナ
+  frontend:
+    build:
+      context: .
+      dockerfile: ./infra/frontend/Dockerfile
+    volumes:
+      - ./frontend:/usr/src/frontend
+    command: sh -c "npm start"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
 
   # dbサーバーのコンテナ
   db:
